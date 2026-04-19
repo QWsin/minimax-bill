@@ -1,5 +1,7 @@
 # MiniMax Bill Analyzer
 
+> English version · [中文版](./README_zh.md)
+
 <!-- shields -->
 <div align="center">
 
@@ -12,7 +14,6 @@
 
 <br>
 
-<!-- mini-logo / title -->
 <div align="center">
 
 **📊 Pure frontend MiniMax bill visualization — no upload, no server, just open and go.**
@@ -41,7 +42,7 @@ _Zero dependencies · Three themes · Bilingual · Works offline_
 | 📅 **Date heatmap** | Daily grid with peak days auto-highlighted |
 | 🧠 **Model table** | Per-model consumption with % share |
 | 🎨 **3 themes** | White / Black / Pink — switchable instantly |
-| 🌐 **Bilingual** | 中文 / English — top-bar toggle |
+| 🌐 **Bilingual** | 简体中文 / English — top-bar toggle |
 | 🔒 **Privacy first** | All data stays in your browser, nothing is uploaded |
 
 ---
@@ -87,12 +88,12 @@ MiniMax bill export columns are auto-detected:
 
 | Field | Aliases |
 |-------|---------|
-| 消费时间 / 时间 | Timestamp |
-| 消费接口 / 接口名称 | API name |
-| 消费模型 / 模型 | Model name |
-| 输入消费数 / 输入消费 | Input tokens |
-| 输出消费数 / 输出消费 | Output tokens |
-| 总消费数 / 总消费 | Total tokens |
+| Timestamp | 消费时间 / 时间 |
+| API name | 消费接口 / 接口名称 |
+| Model name | 消费模型 / 模型 |
+| Input tokens | 输入消费数 / 输入消费 |
+| Output tokens | 输出消费数 / 输出消费 |
+| Total tokens | 总消费数 / 总消费 |
 
 ---
 
@@ -107,17 +108,6 @@ MiniMax bill export columns are auto-detected:
 
 ## 📌 License
 
-[MIT](./LICENSE) · Copyright © 2026 QWsin
-
----
-
-## 🌏 Languages
-
-> Powered by a lightweight JS i18n system — new languages welcome via PR.
-
-| Language | Status |
-|----------|--------|
-| 简体中文 | ✅ Default |
-| English | ✅ Built-in |
+[MIT](./LICENSE)
 
 ---
