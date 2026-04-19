@@ -1,131 +1,123 @@
-# MiniMax Bill Analyzer | MiniMax 账单分析
+# MiniMax Bill Analyzer
 
-[English](#english) | [中文](#中文)
+<!-- shields -->
+<div align="center">
 
----
+![license](https://img.shields.io/github/license/QWsin/minimax-bill?style=flat-square&color=6366f1)
+![stars](https://img.shields.io/github/stars/QWsin/minimax-bill?style=flat-square&color=6366f1)
+![last-commit](https://img.shields.io/github/last-commit/QWsin/minimax-bill?style=flat-square&color=6366f1)
+![version](https://img.shields.io/badge/version-1.0.0-6366f1?style=flat-square)
 
-## English
+</div>
 
-A pure frontend MiniMax bill visualization tool, styled with Tailwind CSS + shadcn/ui aesthetics.
+<br>
 
-### Features
+<!-- mini-logo / title -->
+<div align="center">
 
-- **File Loading**: click to select, drag & drop, or enter a file path
-- **Overview Stats**: total records, input/output tokens with percentage breakdown
-- **API Breakdown**: per-API consumption with progress bars
-- **Date Distribution**: daily consumption heatmap grid with peak days highlighted
-- **Model Breakdown**: table of consumption by model with percentage
-- **3 Color Themes**: White / Black / Pink — switchable via the top bar
-- **Bilingual**: Chinese / English — switchable via the top bar
+**📊 Pure frontend MiniMax bill visualization — no upload, no server, just open and go.**
 
-### Usage
+_Zero dependencies · Three themes · Bilingual · Works offline_
 
-#### Option 1 — Direct Open
+</div>
 
-Open `index.html` directly in your browser (Chrome/Edge recommended).
+<br>
 
-#### Option 2 — Local Server
-
-```bash
-cd minimax-bill
-python -m http.server 8080
-# Visit http://localhost:8080
-```
-
-### Data Fields
-
-MiniMax bill export columns:
-
-| Field | Description |
-|-------|-------------|
-| Account | Main / Sub account |
-| Key Name | API key name |
-| API | API type |
-| Model | Model name |
-| Input Tokens | Input token count |
-| Output Tokens | Output token count |
-| Total Tokens | Input + Output |
-| Timestamp | Consumption time |
-| Result | SUCCESS / FAIL |
-
-### Tech Stack
-
-- Tailwind CSS (CDN)
-- Inter font (Google Fonts)
-- Pure vanilla JavaScript, no framework dependency
-- All data processing happens in-browser, nothing is uploaded
-
-### Themes & Languages
-
-Click the **Theme** or **Language** buttons in the top-right corner to switch.
-
-- **Theme**: White (light) / Black (dark) / Pink
-- **Language**: 中文 / English
-
-## License
-
-MIT
+<div align="center">
+  <img src="https://img.shields.io/badge/-HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5">
+  <img src="https://img.shields.io/badge/-Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS">
+  <img src="https://img.shields.io/badge/-JavaScript-ES2022-yellow?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript">
+</div>
 
 ---
 
-## 中文
+## ✨ Features
 
-一个纯前端的 MiniMax 账单可视化分析工具，基于 Tailwind CSS + shadcn/ui 风格设计。
+| Feature | Description |
+|---------|-------------|
+| 📂 **Multi-mode loading** | Click to select, drag & drop, or paste a file path |
+| 📈 **Overview stats** | Total records, input/output tokens with percentage breakdown |
+| 📊 **API breakdown** | Per-API consumption with animated progress bars |
+| 📅 **Date heatmap** | Daily grid with peak days auto-highlighted |
+| 🧠 **Model table** | Per-model consumption with % share |
+| 🎨 **3 themes** | White / Black / Pink — switchable instantly |
+| 🌐 **Bilingual** | 中文 / English — top-bar toggle |
+| 🔒 **Privacy first** | All data stays in your browser, nothing is uploaded |
 
-### 功能
+---
 
-- **文件加载**：支持点击选择、拖拽上传或路径输入 CSV 账单文件
-- **概览统计**：总记录数、输入/输出 Tokens 及各自占比
-- **API 分组**：按接口类型展示消耗分布及进度条
-- **日期分布**：按天展示消耗热力网格，峰值日期自动高亮
-- **模型分组**：表格展示各模型消耗及占比
-- **三种主题**：白色 / 黑色 / 粉色，右上角一键切换
-- **双语支持**：中文 / 英语，右上角切换
+## 🚀 Quick Start
 
-### 使用方式
-
-#### 方法1 直接打开
-
-在浏览器中直接打开 `index.html` 即可使用（推荐 Chrome/Edge）。
-
-#### 方法2 本地服务器
+### No install required
 
 ```bash
-cd minimax-bill
-python -m http.server 8080
-# 访问 http://localhost:8080
+# Just open the file directly
+open index.html          # macOS
+start index.html         # Windows
+xdg-open index.html      # Linux
 ```
 
-### 数据说明
+### Or use a local server
 
-MiniMax 账单导出字段：
+```bash
+# Python 3
+python -m http.server 8080
 
-| 字段 | 说明 |
-|------|------|
-| 消费账号 | 主账号 / 子账号 |
-| 接口密钥名称 | key 名称 |
-| 消费接口 | API 类型 |
-| 消费模型 | 模型名称 |
-| 输入消费数 | 输入 token 数 |
-| 输出消费数 | 输出 token 数 |
-| 总消费数 | 输入 + 输出 |
-| 消费时间 | 消费时段 |
-| 消费结果 | SUCCESS / FAIL |
+# Node.js
+npx serve .
 
-### 技术栈
+# Then visit http://localhost:8080
+```
 
-- Tailwind CSS (CDN)
-- Inter 字体 (Google Fonts)
-- 纯原生 JavaScript，无框架依赖
-- 所有数据处理在浏览器端完成，不上传任何数据
+---
 
-### 主题与语言
+## 🎯 Usage
 
-点击右上角的 **主题** 或 **语言** 按钮即可切换。
+1. **Export** your bill from MiniMax console as CSV
+2. **Open** `index.html` in your browser
+3. **Load** the file via click, drag, or path input
+4. **Filter** by date range if needed
+5. **Switch** theme / language via the top-right buttons
 
-- **主题**：白色（浅色）/ 黑色（深色）/ 粉色
-- **语言**：中文 / English
+---
 
-### License
+## 🗂️ Data Fields
 
-MIT
+MiniMax bill export columns are auto-detected:
+
+| Field | Aliases |
+|-------|---------|
+| 消费时间 / 时间 | Timestamp |
+| 消费接口 / 接口名称 | API name |
+| 消费模型 / 模型 | Model name |
+| 输入消费数 / 输入消费 | Input tokens |
+| 输出消费数 / 输出消费 | Output tokens |
+| 总消费数 / 总消费 | Total tokens |
+
+---
+
+## 🛠️ Tech Stack
+
+- **HTML5** — semantic structure
+- **Tailwind CSS** (CDN) — utility-first styling, shadcn/ui-inspired design
+- **Inter** (Google Fonts) — clean typography
+- **Vanilla JS** — no framework, no build step, ~600 lines total
+
+---
+
+## 📌 License
+
+[MIT](./LICENSE) · Copyright © 2026 QWsin
+
+---
+
+## 🌏 Languages
+
+> Powered by a lightweight JS i18n system — new languages welcome via PR.
+
+| Language | Status |
+|----------|--------|
+| 简体中文 | ✅ Default |
+| English | ✅ Built-in |
+
+---
