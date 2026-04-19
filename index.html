@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MiniMax 账单分析</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+
+    .drop-zone.drag-over {
+      border-color: #6366f1;
+      background-color: #eef2ff;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .shimmer {
+      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased min-h-screen">
+
+  <div class="max-w-5xl mx-auto px-6 py-12">
+
+    <!-- Header -->
+    <div class="mb-10">
+      <h1 class="text-2xl font-semibold text-slate-900">MiniMax 账单分析</h1>
+      <p class="mt-1 text-sm text-slate-500">支持点击选择、路径输入或拖拽 CSV 文件</p>
+    </div>
+
+    <!-- Upload Section -->
+    <div id="uploadSection" class="mb-10 fade-in">
+
+      <!-- Drag & Drop Zone -->
+      <div id="dropZone"
+           class="drop-zone relative border-2 border-dashed border-slate-300 rounded-xl p-12 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/30 transition-all duration-200 group">
+        <input id="fileInput" type="file" accept=".csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+        <div class="pointer-events-none">
+          <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 mb-4 group-hover:bg-indigo-100 transition-colors">
+            <svg class="w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+          </div>
+          <p class="text-sm font-medium text-slate-700">拖拽 CSV 文件到此处</p>
+          <p class="mt-1 text-xs text-slate-400">或点击选择文件</p>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="flex items-center gap-3 my-6">
+        <div class="flex-1 h-px bg-slate-200"></div>
+        <span class="text-xs text-slate-400 font-medium">或</span>
+        <div class="flex-1 h-px bg-slate-200"></div>
+      </div>
+
+      <!-- Path Input -->
+      <div class="flex gap-2">
+        <input id="pathInput" type="text" placeholder="输入账单文件路径，例如 /Users/xxx/Downloads/export_bill_xxx.csv"
+               class="flex-1 text-sm px-4 py-2.5 border border-slate-200 rounded-lg bg-white shadow-sm
+                      focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+                      placeholder:text-slate-400">
+        <button id="loadPathBtn"
+                class="px-5 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-lg
+                       hover:bg-slate-800 active:bg-slate-950 transition-colors
+                       focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2">
+          加载
+        </button>
+      </div>
+      <p id="pathError" class="mt-2 text-xs text-red-500 hidden"></p>
+      <p class="mt-2 text-xs text-slate-400">
+        提示：由于浏览器安全限制，路径输入仅在使用本地服务器时可用（右键 VS Code "Open with Live Server"）
+      </p>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="hidden mb-8">
+      <div class="bg-red-50 border border-red-200 rounded-xl p-5 text-sm text-red-600">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span id="errorMsg"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Skeleton -->
+    <div id="loadingState" class="hidden mb-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="h-24 rounded-xl shimmer"></div>
+        <div class="h-24 rounded-xl shimmer"></div>
+        <div class="h-24 rounded-xl shimmer"></div>
+        <div class="h-24 rounded-xl shimmer"></div>
+      </div>
+    </div>
+
+    <!-- Dashboard (hidden initially) -->
+    <div id="dashboard" class="hidden fade-in">
+
+      <!-- Summary Cards -->
+      <div id="summaryCards" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+        <!-- injected by JS -->
+      </div>
+
+      <!-- File Info -->
+      <div class="mb-6 px-1 flex items-center justify-between">
+        <p id="fileInfo" class="text-xs text-slate-400"></p>
+        <button id="resetBtn" class="text-xs text-slate-400 hover:text-indigo-500 transition-colors flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          重新选择文件
+        </button>
+      </div>
+
+      <!-- API 消耗 -->
+      <div class="mb-8">
+        <h2 class="text-sm font-medium text-slate-700 mb-3">按 API 分组</h2>
+        <div id="apiChart" class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+          <!-- injected by JS -->
+        </div>
+      </div>
+
+      <!-- 日期分布 -->
+      <div class="mb-8">
+        <h2 class="text-sm font-medium text-slate-700 mb-3">按日期分布</h2>
+        <div id="dateGrid" class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+          <!-- injected by JS -->
+        </div>
+      </div>
+
+      <!-- 模型分组 -->
+      <div class="mb-8">
+        <h2 class="text-sm font-medium text-slate-700 mb-3">按模型分组</h2>
+        <div id="modelTable" class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <!-- injected by JS -->
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // ─── State ───────────────────────────────────────────────
+    let currentData = null;
+
+    // ─── Helpers ─────────────────────────────────────────────
+    const $ = id => document.getElementById(id);
+    const fmt = n => n.toLocaleString('zh-CN');
+
+    function safeInt(v) {
+      const n = parseInt(v, 10);
+      return isNaN(n) ? 0 : n;
+    }
+
+    // ─── CSV Parser ───────────────────────────────────────────
+    function parseCSV(text) {
+      const lines = text.trim().split(/\r?\n/);
+      if (lines.length < 2) throw new Error('CSV 文件内容为空或格式错误');
+
+      const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+      const rows = [];
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+        if (values.length !== headers.length) continue;
+        rows.push(Object.fromEntries(headers.map((h, idx) => [h, values[idx]])));
+      }
+      return rows;
+    }
+
+    // ─── Analysis ────────────────────────────────────────────
+    function analyzeData(rows) {
+      const byApi   = {};
+      const byModel = {};
+      const byDate  = {};
+      let totalInput = 0, totalOutput = 0, totalTokens = 0;
+
+      for (const row of rows) {
+        const input  = safeInt(row['输入消费数'] || row['输入消费']);
+        const output = safeInt(row['输出消费数'] || row['输出消费']);
+        const total  = safeInt(row['总消费数']   || row['总消费']);
+        const api    = row['消费接口']  || row['接口名称']  || 'unknown';
+        const model  = row['消费模型']  || row['模型']      || 'unknown';
+        const time   = row['消费时间']  || row['时间']      || '';
+
+        const date = time.match(/^([\d-]+)/)?.[1] || 'unknown';
+
+        byApi[api]   = byApi[api]   || { input: 0, output: 0, total: 0 };
+        byApi[api].input  += input;
+        byApi[api].output += output;
+        byApi[api].total  += total;
+
+        byModel[model] = byModel[model] || { total: 0 };
+        byModel[model].total += total;
+
+        byDate[date] = byDate[date] || 0;
+        byDate[date] += total;
+
+        totalInput  += input;
+        totalOutput += output;
+        totalTokens += total;
+      }
+
+      return {
+        totalInput, totalOutput, totalTokens,
+        totalRecords: rows.length,
+        byApi, byModel, byDate,
+      };
+    }
+
+    // ─── Render ──────────────────────────────────────────────
+    function renderDashboard(data) {
+      const { totalInput, totalOutput, totalTokens, totalRecords, byApi, byModel, byDate } = data;
+
+      // Summary cards
+      $('summaryCards').innerHTML = `
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">总记录数</p>
+          <p class="mt-2 text-2xl font-semibold text-slate-900">${fmt(totalRecords)}</p>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">输入 Tokens</p>
+          <p class="mt-2 text-2xl font-semibold text-slate-900">${fmt(totalInput)}</p>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">输出 Tokens</p>
+          <p class="mt-2 text-2xl font-semibold text-slate-900">${fmt(totalOutput)}</p>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">总消费 Tokens</p>
+          <p class="mt-2 text-2xl font-semibold text-indigo-500">${fmt(totalTokens)}</p>
+        </div>
+      `;
+
+      // API chart
+      const sortedApis = Object.entries(byApi).sort((a, b) => b[1].total - a[1].total);
+      const maxApiTotal = sortedApis[0]?.[1].total || 1;
+      const maxBarWidth = 100;
+
+      $('apiChart').innerHTML = `
+        <div class="space-y-4">
+          ${sortedApis.map(([api, d]) => {
+            const pct = Math.max((d.total / maxApiTotal) * maxBarWidth, d.total > 0 ? 2 : 0);
+            const isHighlight = pct > 50;
+            return `
+              <div>
+                <div class="flex justify-between text-sm mb-1.5">
+                  <span class="text-slate-700 font-medium truncate max-w-[60%]">${api}</span>
+                  <span class="text-slate-500">${fmt(d.total)}</span>
+                </div>
+                <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full transition-all duration-500 ${isHighlight ? 'bg-indigo-500' : 'bg-indigo-300'}"
+                       style="width:${pct}%"></div>
+                </div>
+                <div class="flex gap-4 mt-1 text-xs text-slate-400">
+                  <span>输入 ${fmt(d.input)}</span>
+                  <span>输出 ${fmt(d.output)}</span>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+
+      // Date grid
+      const sortedDates = Object.entries(byDate).sort((a, b) => a[0].localeCompare(b[0]));
+      const maxDateTotal = Math.max(...sortedDates.map(d => d[1]));
+      const peakDates = new Set(
+        sortedDates.filter(([, v]) => v >= maxDateTotal * 0.8).map(([k]) => k)
+      );
+
+      $('dateGrid').innerHTML = `
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5">
+          ${sortedDates.map(([date, total]) => {
+            const isPeak = peakDates.has(date);
+            const label = date.slice(5); // MM-DD
+            return `
+              <div class="rounded-lg p-3 text-center transition-colors ${isPeak
+                ? 'bg-indigo-50 ring-1 ring-indigo-200'
+                : 'bg-slate-50'}">
+                <p class="text-xs ${isPeak ? 'text-indigo-400' : 'text-slate-400'}">${label}</p>
+                <p class="mt-1 text-sm font-medium ${isPeak ? 'text-indigo-600' : 'text-slate-700'}">${fmt(total)}</p>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+
+      // Model table
+      const sortedModels = Object.entries(byModel).sort((a, b) => b[1].total - a[1].total);
+      const totalModelTokens = sortedModels.reduce((s, [, v]) => s + v.total, 0);
+
+      $('modelTable').innerHTML = `
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-slate-100 bg-slate-50">
+              <th class="text-left px-5 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">模型</th>
+              <th class="text-right px-5 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">消耗 Tokens</th>
+              <th class="text-right px-5 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">占比</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            ${sortedModels.map(([model, d]) => {
+              const pct = totalModelTokens > 0 ? ((d.total / totalModelTokens) * 100).toFixed(1) : '0.0';
+              return `
+                <tr class="hover:bg-slate-50 transition-colors">
+                  <td class="px-5 py-3 font-medium text-slate-800">${model}</td>
+                  <td class="px-5 py-3 text-right text-slate-600">${fmt(d.total)}</td>
+                  <td class="px-5 py-3 text-right text-slate-600">${pct}%</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      `;
+
+      $('dashboard').classList.remove('hidden');
+    }
+
+    // ─── Load / Process ─────────────────────────────────────
+    function loadData(rows, fileName) {
+      $('loadingState').classList.remove('hidden');
+      $('errorState').classList.add('hidden');
+      $('dashboard').classList.add('hidden');
+
+      // Small delay for UX
+      setTimeout(() => {
+        try {
+          currentData = analyzeData(rows);
+          renderDashboard(currentData);
+          $('fileInfo').textContent = `已加载：${fileName}，共 ${rows.length} 条记录`;
+          $('loadingState').classList.add('hidden');
+        } catch (err) {
+          $('loadingState').classList.add('hidden');
+          showError(err.message);
+        }
+      }, 300);
+    }
+
+    function showError(msg) {
+      $('errorState').classList.remove('hidden');
+      $('errorMsg').textContent = msg;
+    }
+
+    function reset() {
+      $('dashboard').classList.add('hidden');
+      $('errorState').classList.add('hidden');
+      $('loadingState').classList.add('hidden');
+      $('fileInput').value = '';
+      $('pathInput').value = '';
+      currentData = null;
+    }
+
+    // ─── File Input ─────────────────────────────────────────
+    $('fileInput').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => loadData(parseCSV(ev.target.result), file.name);
+      reader.onerror = () => showError('文件读取失败，请检查文件是否可读');
+      reader.readAsText(file);
+    });
+
+    // ─── Drag & Drop ────────────────────────────────────────
+    const dropZone = $('dropZone');
+
+    dropZone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropZone.classList.add('drag-over');
+    });
+
+    dropZone.addEventListener('dragleave', e => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+    });
+
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (!file || !file.name.endsWith('.csv')) {
+        showError('请拖拽 CSV 格式的文件');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = ev => loadData(parseCSV(ev.target.result), file.name);
+      reader.onerror = () => showError('文件读取失败');
+      reader.readAsText(file);
+    });
+
+    // ─── Path Input ─────────────────────────────────────────
+    $('loadPathBtn').addEventListener('click', async () => {
+      const path = $('pathInput').value.trim();
+      if (!path) {
+        $('pathError').textContent = '请输入文件路径';
+        $('pathError').classList.remove('hidden');
+        return;
+      }
+      $('pathError').classList.add('hidden');
+
+      // Try using fetch (works if served from same origin or CORS enabled)
+      try {
+        const resp = await fetch(`file://${path}`);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const text = await resp.text();
+        loadData(parseCSV(text), path.split('/').pop());
+      } catch {
+        // Fallback: try WebKitRequestFileSystem (Chrome-only, file protocol)
+        if (window.showOpenFilePicker) {
+          try {
+            const [handle] = await window.showOpenFilePicker({
+              types: [{ description: 'CSV', accept: { 'text/csv': ['.csv'] } }],
+              excludeAcceptAllOption: false,
+            });
+            const file = await handle.getFile();
+            const text = await file.text();
+            loadData(parseCSV(text), file.name);
+          } catch {
+            $('pathError').textContent = '无法读取文件，请使用拖拽或点击选择方式加载';
+            $('pathError').classList.remove('hidden');
+          }
+        } else {
+          $('pathError').textContent = '浏览器安全限制无法直接读取本地路径，请使用拖拽或点击选择方式加载';
+          $('pathError').classList.remove('hidden');
+        }
+      }
+    });
+
+    // ─── Reset ─────────────────────────────────────────────
+    $('resetBtn').addEventListener('click', reset);
+
+  </script>
+</body>
+</html>
