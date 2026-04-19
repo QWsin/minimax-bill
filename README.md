@@ -2,6 +2,12 @@
 
 > English version · [中文版](./README_zh.md)
 
+<h2>
+  <a href="https://QWsin.github.io/minimax-bill" target="_blank">
+    🔗 Live Demo — open and analyze your MiniMax bill instantly →
+  </a>
+</h2>
+
 <!-- shields -->
 <div align="center">
 
