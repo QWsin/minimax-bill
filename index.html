@@ -1,9 +1,148 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="white">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MiniMax 账单分析</title>
+  <title data-i18n="title">MiniMax 账单分析</title>
+  <script>
+    // ─── Favicon — 3 themes ──────────────────────────────────
+    const favicons = {
+      white: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%236366f1'/%3E%3Crect x='1' y='1' width='2' height='2' fill='%23e0e7ff'/%3E%3Crect x='13' y='1' width='2' height='2' fill='%23e0e7ff'/%3E%3Crect x='1' y='13' width='2' height='2' fill='%234f46e5'/%3E%3Crect x='13' y='13' width='2' height='2' fill='%234f46e5'/%3E%3Crect x='2' y='7' width='2' height='6' fill='%23fff'/%3E%3Crect x='4' y='5' width='2' height='8' fill='%23fff'/%3E%3Crect x='6' y='3' width='2' height='10' fill='%23fff'/%3E%3Crect x='8' y='6' width='2' height='7' fill='%23fff'/%3E%3Crect x='10' y='4' width='2' height='9' fill='%23fff'/%3E%3Crect x='12' y='8' width='2' height='5' fill='%23fff'/%3E%3C/svg%3E",
+      black: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%231e293b'/%3E%3Crect x='1' y='1' width='2' height='2' fill='%23334155'/%3E%3Crect x='13' y='1' width='2' height='2' fill='%23334155'/%3E%3Crect x='1' y='13' width='2' height='2' fill='%230f172a'/%3E%3Crect x='13' y='13' width='2' height='2' fill='%230f172a'/%3E%3Crect x='2' y='7' width='2' height='6' fill='%23e2e8f0'/%3E%3Crect x='4' y='5' width='2' height='8' fill='%23e2e8f0'/%3E%3Crect x='6' y='3' width='2' height='10' fill='%23e2e8f0'/%3E%3Crect x='8' y='6' width='2' height='7' fill='%23e2e8f0'/%3E%3Crect x='10' y='4' width='2' height='9' fill='%23e2e8f0'/%3E%3Crect x='12' y='8' width='2' height='5' fill='%23e2e8f0'/%3E%3C/svg%3E",
+      pink:  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23ec4899'/%3E%3Crect x='1' y='1' width='2' height='2' fill='%23fbcfe8'/%3E%3Crect x='13' y='1' width='2' height='2' fill='%23fbcfe8'/%3E%3Crect x='1' y='13' width='2' height='2' fill='%23db2777'/%3E%3Crect x='13' y='13' width='2' height='2' fill='%23db2777'/%3E%3Crect x='2' y='7' width='2' height='6' fill='%23fff'/%3E%3Crect x='4' y='5' width='2' height='8' fill='%23fff'/%3E%3Crect x='6' y='3' width='2' height='10' fill='%23fff'/%3E%3Crect x='8' y='6' width='2' height='7' fill='%23fff'/%3E%3Crect x='10' y='4' width='2' height='9' fill='%23fff'/%3E%3Crect x='12' y='8' width='2' height='5' fill='%23fff'/%3E%3C/svg%3E"
+    };
+
+    // ─── Translations ─────────────────────────────────────────
+    const I18 = {
+      zh: {
+        title: 'MiniMax 账单分析',
+        subtitle: '支持点击选择、路径输入或拖拽 CSV 文件',
+        themeWhite: '白色主题',
+        themeBlack: '黑色主题',
+        themePink: '粉色主题',
+        themeLabel: '主题',
+        langLabel: '语言',
+        dropzoneText: '拖拽 CSV 文件到此处',
+        dropzoneSub: '或点击选择文件',
+        dividerOr: '或',
+        pathPlaceholder: '输入账单文件路径，例如 /Users/xxx/Downloads/export_bill_xxx.csv',
+        loadBtn: '加载',
+        pathHint: '提示：由于浏览器安全限制，路径输入仅在使用本地服务器时可用（右键 VS Code "Open with Live Server"）',
+        resetBtn: '重新选择文件',
+        dateRange: '日期范围',
+        dateTo: '至',
+        applyBtn: '应用',
+        resetFilterBtn: '重置',
+        groupByApi: '按 API 分组',
+        groupByDate: '按日期分布',
+        groupByModel: '按模型分组',
+        totalRecords: '总记录数',
+        inputTokens: '输入 Tokens',
+        outputTokens: '输出 Tokens',
+        totalTokens: '总消费 Tokens',
+        input: '输入',
+        output: '输出',
+        modelCol: '模型',
+        tokensCol: '消耗 Tokens',
+        ratioCol: '占比',
+        fileLoaded: '已加载',
+        filterHit: '筛选',
+        records: '条记录',
+        csvEmpty: 'CSV 文件内容为空或格式错误',
+        readFailed: '文件读取失败，请检查文件是否可读',
+        dragCsvOnly: '请拖拽 CSV 格式的文件',
+        readFailedShort: '文件读取失败',
+        enterPath: '请输入文件路径',
+        cantReadFile: '无法读取文件，请使用拖拽或点击选择方式加载',
+        pathBrowserLimit: '浏览器安全限制无法直接读取本地路径，请使用拖拽或点击选择方式加载',
+      },
+      en: {
+        title: 'MiniMax Bill Analyzer',
+        subtitle: 'Click to select, enter a path, or drag & drop a CSV file',
+        themeWhite: 'White Theme',
+        themeBlack: 'Black Theme',
+        themePink: 'Pink Theme',
+        themeLabel: 'Theme',
+        langLabel: 'Lang',
+        dropzoneText: 'Drag & drop CSV file here',
+        dropzoneSub: 'or click to select',
+        dividerOr: 'or',
+        pathPlaceholder: 'Enter bill file path, e.g. /Users/xxx/Downloads/export_bill_xxx.csv',
+        loadBtn: 'Load',
+        pathHint: 'Note: Due to browser security restrictions, path input only works with a local server (right-click in VS Code → "Open with Live Server")',
+        resetBtn: 'Select Another File',
+        dateRange: 'Date Range',
+        dateTo: 'to',
+        applyBtn: 'Apply',
+        resetFilterBtn: 'Reset',
+        groupByApi: 'By API',
+        groupByDate: 'By Date',
+        groupByModel: 'By Model',
+        totalRecords: 'Total Records',
+        inputTokens: 'Input Tokens',
+        outputTokens: 'Output Tokens',
+        totalTokens: 'Total Tokens',
+        input: 'In',
+        output: 'Out',
+        modelCol: 'Model',
+        tokensCol: 'Tokens',
+        ratioCol: 'Ratio',
+        fileLoaded: 'Loaded',
+        filterHit: 'filter',
+        records: 'records',
+        csvEmpty: 'CSV file is empty or has invalid format',
+        readFailed: 'Failed to read file, please check if it is readable',
+        dragCsvOnly: 'Please drag a CSV file',
+        readFailedShort: 'Failed to read file',
+        enterPath: 'Please enter a file path',
+        cantReadFile: 'Cannot read file, please use drag & drop or click to select',
+        pathBrowserLimit: 'Browser security restrictions prevent reading local paths directly. Please use drag & drop or click to select',
+      }
+    };
+
+    // ─── State ───────────────────────────────────────────────
+    let currentTheme = 'white';
+    let currentLang  = 'zh';
+
+    // ─── Favicon ─────────────────────────────────────────────
+    const faviconLink = document.querySelector("link[rel='icon']") || (() => {
+      const l = document.createElement('link'); l.rel = 'icon'; l.type = 'image/svg+xml'; document.head.appendChild(l); return l;
+    })();
+
+    function setTheme(name) {
+      currentTheme = name;
+      faviconLink.href = favicons[name];
+      document.documentElement.dataset.theme = name;
+      document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('theme' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+    }
+
+    // ─── i18n ───────────────────────────────────────────────
+    function t(key) {
+      return I18[currentLang][key] || key;
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        el.textContent = t(el.dataset.i18n);
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        el.placeholder = t(el.dataset.i18nPlaceholder);
+      });
+      document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        el.title = t(el.dataset.i18nTitle);
+      });
+      document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('lang' + lang.toUpperCase()).classList.add('active');
+      // Refresh dashboard if open
+      if (allRows.length) refreshDashboard();
+    }
+
+    // ─── Init ────────────────────────────────────────────────
+    faviconLink.href = favicons.white;
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -17,23 +156,119 @@
     }
   </script>
   <style>
-    body { font-family: 'Inter', system-ui, sans-serif; }
-
-    .drop-zone.drag-over {
-      border-color: #6366f1;
-      background-color: #eef2ff;
+    /* ─── Theme CSS Variables ──────────────────────────────── */
+    :root, [data-theme="white"] {
+      --bg: #f8fafc;
+      --bg-card: #ffffff;
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --border: #e2e8f0;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-light: #eef2ff;
+      --accent-ring: #6366f1;
+      --shimmer-a: #f1f5f9;
+      --shimmer-b: #e2e8f0;
+      --drop-hover-bg: #eef2ff;
+      --drop-hover-border: #6366f1;
+      --btn-primary-bg: #0f172a;
+      --btn-primary-hover: #1e293b;
     }
 
-    .fade-in {
-      animation: fadeIn 0.3s ease-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+    [data-theme="black"] {
+      --bg: #0f172a;
+      --bg-card: #1e293b;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --border: #334155;
+      --accent: #818cf8;
+      --accent-hover: #6366f1;
+      --accent-light: #1e1b4b;
+      --accent-ring: #818cf8;
+      --shimmer-a: #1e293b;
+      --shimmer-b: #334155;
+      --drop-hover-bg: #1e1b4b;
+      --drop-hover-border: #818cf8;
+      --btn-primary-bg: #f1f5f9;
+      --btn-primary-hover: #e2e8f0;
     }
 
+    [data-theme="pink"] {
+      --bg: #fdf2f8;
+      --bg-card: #ffffff;
+      --text-primary: #831843;
+      --text-secondary: #be185d;
+      --border: #fbcfe8;
+      --accent: #ec4899;
+      --accent-hover: #db2777;
+      --accent-light: #fdf2f8;
+      --accent-ring: #ec4899;
+      --shimmer-a: #fce7f3;
+      --shimmer-b: #fbcfe8;
+      --drop-hover-bg: #fdf2f8;
+      --drop-hover-border: #ec4899;
+      --btn-primary-bg: #831843;
+      --btn-primary-hover: #9d174d;
+    }
+
+    /* ─── Base ───────────────────────────────────────────── */
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-primary);
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    /* ─── Cards / Surfaces ───────────────────────────────── */
+    .bg-white, [data-theme] .bg-white {
+      background-color: var(--bg-card) !important;
+      border-color: var(--border) !important;
+      color: var(--text-primary) !important;
+    }
+    .bg-slate-50  { background-color: var(--bg) !important; }
+    .bg-slate-100 { background-color: var(--bg-card) !important; }
+
+    .border-slate-200, .border-slate-300 { border-color: var(--border) !important; }
+    .text-slate-900 { color: var(--text-primary) !important; }
+    .text-slate-500, .text-slate-400 { color: var(--text-secondary) !important; }
+    .text-slate-700 { color: var(--text-primary) !important; }
+    .text-slate-800 { color: var(--text-primary) !important; }
+    .text-slate-600 { color: var(--text-secondary) !important; }
+
+    /* ─── Accent ─────────────────────────────────────────── */
+    .text-indigo-500 { color: var(--accent) !important; }
+    .bg-indigo-50    { background-color: var(--accent-light) !important; }
+    .bg-indigo-100   { background-color: var(--accent-light) !important; }
+    .bg-indigo-300   { background-color: var(--accent) !important; }
+    .bg-indigo-500   { background-color: var(--accent) !important; }
+    .text-indigo-400 { color: var(--accent) !important; }
+    .text-indigo-600 { color: var(--accent) !important; }
+    .ring-indigo-200 { --tw-ring-color: var(--accent-light) !important; }
+    .hover\:text-indigo-500:hover { color: var(--accent) !important; }
+    .hover\:border-indigo-400:hover { border-color: var(--accent) !important; }
+    .hover\:bg-indigo-50\/30:hover { background-color: var(--accent-light) !important; }
+    .group-hover\:bg-indigo-100 { background-color: var(--accent-light) !important; }
+    .group-hover\:text-indigo-500 { color: var(--accent) !important; }
+    .focus\:ring-indigo-500 { --tw-ring-color: var(--accent) !important; }
+
+    /* ─── Primary Button ─────────────────────────────────── */
+    .bg-slate-900, .bg-slate-800 { background-color: var(--btn-primary-bg) !important; }
+    .bg-slate-900:hover { background-color: var(--btn-primary-hover) !important; }
+    .bg-slate-800 { background-color: var(--btn-primary-hover) !important; }
+    .focus\:ring-slate-900 { --tw-ring-color: var(--btn-primary-bg) !important; }
+
+    /* ─── Drop Zone ──────────────────────────────────────── */
+    .drop-zone { border-color: var(--border) !important; }
+    .drop-zone:hover { border-color: var(--accent) !important; background-color: var(--drop-hover-bg) !important; }
+    .drop-zone.drag-over { border-color: var(--drop-hover-border) !important; background-color: var(--drop-hover-bg) !important; }
+    .drop-zone-text { color: var(--text-primary) !important; }
+    .drop-zone-sub { color: var(--text-secondary) !important; }
+    .drop-zone-icon { color: var(--text-secondary) !important; }
+    .drop-zone:hover .drop-zone-icon { color: var(--accent) !important; }
+
+    /* ─── Shimmer ────────────────────────────────────────── */
     .shimmer {
-      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background: linear-gradient(90deg, var(--shimmer-a) 25%, var(--shimmer-b) 50%, var(--shimmer-a) 75%);
       background-size: 200% 100%;
       animation: shimmer 1.5s infinite;
     }
@@ -41,16 +276,76 @@
       0% { background-position: 200% 0; }
       100% { background-position: -200% 0; }
     }
+
+    /* ─── Fade In ────────────────────────────────────────── */
+    .fade-in { animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── Buttons ────────────────────────────────────────── */
+    .theme-btn.active {
+      background: var(--bg-card) !important;
+      box-shadow: 0 0 0 2px var(--accent-ring), 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .lang-btn.active {
+      background: var(--bg-card) !important;
+      box-shadow: 0 0 0 2px var(--accent-ring), 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .theme-btn, .lang-btn { transition: box-shadow 0.15s ease; }
+
+    /* ─── Table ──────────────────────────────────────────── */
+    .bg-slate-50 { background-color: var(--bg-card) !important; }
+    .divide-slate-100 > * { border-color: var(--border) !important; }
+
+    /* ─── Inputs ─────────────────────────────────────────── */
+    input[type="date"], input[type="text"] {
+      background-color: var(--bg) !important;
+      border-color: var(--border) !important;
+      color: var(--text-primary) !important;
+    }
+    input::placeholder { color: var(--text-secondary) !important; }
+
+    /* ─── File info ──────────────────────────────────────── */
+    #fileInfo { color: var(--text-secondary) !important; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-900 antialiased min-h-screen">
+<body class="antialiased min-h-screen">
 
   <div class="max-w-5xl mx-auto px-6 py-12">
 
     <!-- Header -->
-    <div class="mb-10">
-      <h1 class="text-2xl font-semibold text-slate-900">MiniMax 账单分析</h1>
-      <p class="mt-1 text-sm text-slate-500">支持点击选择、路径输入或拖拽 CSV 文件</p>
+    <div class="mb-10 flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <h1 class="text-2xl font-semibold text-slate-900" data-i18n="title">MiniMax 账单分析</h1>
+        <p class="mt-1 text-sm text-slate-500" data-i18n="subtitle">支持点击选择、路径输入或拖拽 CSV 文件</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Theme switcher -->
+        <div class="flex items-center gap-1.5 rounded-lg p-1.5" style="background:var(--bg-card)">
+          <span class="text-xs font-medium mr-1" style="color:var(--text-secondary)" data-i18n="themeLabel">主题</span>
+          <button id="themeWhite" class="theme-btn w-7 h-7 rounded-md flex items-center justify-center" title="白色主题">
+            <span class="w-4 h-4 rounded-sm bg-white ring-1 ring-slate-200"></span>
+          </button>
+          <button id="themeBlack" class="theme-btn w-7 h-7 rounded-md flex items-center justify-center" title="黑色主题">
+            <span class="w-4 h-4 rounded-sm" style="background:#1e293b"></span>
+          </button>
+          <button id="themePink" class="theme-btn w-7 h-7 rounded-md flex items-center justify-center" title="粉色主题">
+            <span class="w-4 h-4 rounded-sm" style="background:#ec4899"></span>
+          </button>
+        </div>
+        <!-- Lang switcher -->
+        <div class="flex items-center gap-1.5 rounded-lg p-1.5" style="background:var(--bg-card)">
+          <span class="text-xs font-medium mr-1" style="color:var(--text-secondary)" data-i18n="langLabel">语言</span>
+          <button id="langZH" class="lang-btn w-7 h-7 rounded-md flex items-center justify-center text-xs font-medium transition-colors" style="color:var(--text-secondary)" title="中文">
+            中
+          </button>
+          <button id="langEN" class="lang-btn w-7 h-7 rounded-md flex items-center justify-center text-xs font-medium transition-colors" style="color:var(--text-secondary)" title="English">
+            EN
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Upload Section -->
@@ -67,35 +362,36 @@
                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
             </svg>
           </div>
-          <p class="text-sm font-medium text-slate-700">拖拽 CSV 文件到此处</p>
-          <p class="mt-1 text-xs text-slate-400">或点击选择文件</p>
+          <p class="text-sm font-medium text-slate-700" data-i18n="dropzoneText">拖拽 CSV 文件到此处</p>
+          <p class="mt-1 text-xs text-slate-400" data-i18n="dropzoneSub">或点击选择文件</p>
         </div>
       </div>
 
       <!-- Divider -->
       <div class="flex items-center gap-3 my-6">
         <div class="flex-1 h-px bg-slate-200"></div>
-        <span class="text-xs text-slate-400 font-medium">或</span>
+        <span class="text-xs font-medium" style="color:var(--text-secondary)" data-i18n="dividerOr">或</span>
         <div class="flex-1 h-px bg-slate-200"></div>
       </div>
 
       <!-- Path Input -->
       <div class="flex gap-2">
-        <input id="pathInput" type="text" placeholder="输入账单文件路径，例如 /Users/xxx/Downloads/export_bill_xxx.csv"
+        <input id="pathInput" type="text"
+               data-i18n-placeholder="pathPlaceholder"
+               placeholder="输入账单文件路径，例如 /Users/xxx/Downloads/export_bill_xxx.csv"
                class="flex-1 text-sm px-4 py-2.5 border border-slate-200 rounded-lg bg-white shadow-sm
                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
                       placeholder:text-slate-400">
         <button id="loadPathBtn"
                 class="px-5 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-lg
                        hover:bg-slate-800 active:bg-slate-950 transition-colors
-                       focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2">
+                       focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
+                data-i18n="loadBtn">
           加载
         </button>
       </div>
       <p id="pathError" class="mt-2 text-xs text-red-500 hidden"></p>
-      <p class="mt-2 text-xs text-slate-400">
-        提示：由于浏览器安全限制，路径输入仅在使用本地服务器时可用（右键 VS Code "Open with Live Server"）
-      </p>
+      <p class="mt-2 text-xs text-slate-400" data-i18n="pathHint">提示：由于浏览器安全限制，路径输入仅在使用本地服务器时可用（右键 VS Code "Open with Live Server"）</p>
     </div>
 
     <!-- Error State -->
@@ -132,7 +428,7 @@
       <!-- File Info -->
       <div class="mb-6 px-1 flex items-center justify-between flex-wrap gap-3">
         <p id="fileInfo" class="text-xs text-slate-400"></p>
-        <button id="resetBtn" class="text-xs text-slate-400 hover:text-indigo-500 transition-colors flex items-center gap-1">
+        <button id="resetBtn" class="text-xs text-slate-400 hover:text-indigo-500 transition-colors flex items-center gap-1" data-i18n="resetBtn">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
@@ -144,21 +440,23 @@
       <!-- Date Range Filter -->
       <div id="dateRangeSection" class="hidden mb-6">
         <div class="flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-5 py-3 shadow-sm">
-          <span class="text-xs text-slate-500 font-medium shrink-0">日期范围</span>
+          <span class="text-xs text-slate-500 font-medium shrink-0" data-i18n="dateRange">日期范围</span>
           <input type="date" id="dateRangeStart"
                  class="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-slate-50
                         focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-          <span class="text-xs text-slate-400">至</span>
+          <span class="text-xs text-slate-400" data-i18n="dateTo">至</span>
           <input type="date" id="dateRangeEnd"
                  class="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-slate-50
                         focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
           <button id="applyRangeBtn"
                   class="ml-auto px-4 py-1.5 bg-slate-900 text-white text-xs font-medium rounded-lg
-                         hover:bg-slate-800 active:bg-slate-950 transition-colors">
+                         hover:bg-slate-800 active:bg-slate-950 transition-colors"
+                  data-i18n="applyBtn">
             应用
           </button>
           <button id="clearRangeBtn"
-                  class="px-3 py-1.5 text-xs text-slate-400 hover:text-indigo-500 transition-colors">
+                  class="px-3 py-1.5 text-xs text-slate-400 hover:text-indigo-500 transition-colors"
+                  data-i18n="resetFilterBtn">
             重置
           </button>
         </div>
@@ -166,7 +464,7 @@
 
       <!-- API 消耗 -->
       <div class="mb-8">
-        <h2 class="text-sm font-medium text-slate-700 mb-3">按 API 分组</h2>
+        <h2 class="text-sm font-medium text-slate-700 mb-3" data-i18n="groupByApi">按 API 分组</h2>
         <div id="apiChart" class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
           <!-- injected by JS -->
         </div>
@@ -174,7 +472,7 @@
 
       <!-- 日期分布 -->
       <div class="mb-8">
-        <h2 class="text-sm font-medium text-slate-700 mb-3">按日期分布</h2>
+        <h2 class="text-sm font-medium text-slate-700 mb-3" data-i18n="groupByDate">按日期分布</h2>
         <div id="dateGrid" class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
           <!-- injected by JS -->
         </div>
@@ -182,7 +480,7 @@
 
       <!-- 模型分组 -->
       <div class="mb-8">
-        <h2 class="text-sm font-medium text-slate-700 mb-3">按模型分组</h2>
+        <h2 class="text-sm font-medium text-slate-700 mb-3" data-i18n="groupByModel">按模型分组</h2>
         <div id="modelTable" class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
           <!-- injected by JS -->
         </div>
@@ -194,13 +492,13 @@
 
   <script>
     // ─── State ───────────────────────────────────────────────
-    let allRows     = [];      // raw CSV rows, unfiltered
-    let dateRange   = { start: '', end: '' };  // selected filter range
-    let fileName    = '';
+    let allRows   = [];
+    let dateRange = { start: '', end: '' };
+    let fileName  = '';
 
     // ─── Helpers ─────────────────────────────────────────────
     const $ = id => document.getElementById(id);
-    const fmt = n => n.toLocaleString('zh-CN');
+    const fmt = n => n.toLocaleString(currentLang === 'en' ? 'en-US' : 'zh-CN');
 
     function safeInt(v) {
       const n = parseInt(v, 10);
@@ -215,7 +513,7 @@
     // ─── CSV Parser ───────────────────────────────────────────
     function parseCSV(text) {
       const lines = text.trim().split(/\r?\n/);
-      if (lines.length < 2) throw new Error('CSV 文件内容为空或格式错误');
+      if (lines.length < 2) throw new Error(t('csvEmpty'));
 
       const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
       const rows = [];
@@ -229,7 +527,6 @@
 
     // ─── Analysis ────────────────────────────────────────────
     function analyzeData(rawRows, range = dateRange) {
-      // Filter by date range
       const rows = rawRows.filter(row => {
         if (!range.start && !range.end) return true;
         const d = extractDate(row);
@@ -268,46 +565,44 @@
         totalTokens += total;
       }
 
-      return {
-        totalInput, totalOutput, totalTokens,
-        totalRecords: rows.length,
-        byApi, byModel, byDate,
-      };
+      return { totalInput, totalOutput, totalTokens, totalRecords: rows.length, byApi, byModel, byDate };
     }
 
     // ─── Render ──────────────────────────────────────────────
     function renderDashboard(data) {
       const { totalInput, totalOutput, totalTokens, totalRecords, byApi, byModel, byDate } = data;
 
-      // Summary cards
+      const inputPct  = totalTokens > 0 ? (totalInput  / totalTokens * 100).toFixed(1) : '0.0';
+      const outputPct  = totalTokens > 0 ? (totalOutput / totalTokens * 100).toFixed(1) : '0.0';
+
       $('summaryCards').innerHTML = `
         <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-          <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">总记录数</p>
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wide" data-i18n="totalRecords">总记录数</p>
           <p class="mt-2 text-2xl font-semibold text-slate-900">${fmt(totalRecords)}</p>
         </div>
         <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-          <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">输入 Tokens</p>
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wide" data-i18n="inputTokens">输入 Tokens</p>
           <p class="mt-2 text-2xl font-semibold text-slate-900">${fmt(totalInput)}</p>
+          <p class="mt-1 text-xs text-indigo-500">${inputPct}%</p>
         </div>
         <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-          <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">输出 Tokens</p>
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wide" data-i18n="outputTokens">输出 Tokens</p>
           <p class="mt-2 text-2xl font-semibold text-slate-900">${fmt(totalOutput)}</p>
+          <p class="mt-1 text-xs text-indigo-500">${outputPct}%</p>
         </div>
         <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-          <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">总消费 Tokens</p>
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wide" data-i18n="totalTokens">总消费 Tokens</p>
           <p class="mt-2 text-2xl font-semibold text-indigo-500">${fmt(totalTokens)}</p>
         </div>
       `;
 
-      // API chart
       const sortedApis = Object.entries(byApi).sort((a, b) => b[1].total - a[1].total);
       const maxApiTotal = sortedApis[0]?.[1].total || 1;
-      const maxBarWidth = 100;
 
       $('apiChart').innerHTML = `
         <div class="space-y-4">
           ${sortedApis.map(([api, d]) => {
-            const pct = Math.max((d.total / maxApiTotal) * maxBarWidth, d.total > 0 ? 2 : 0);
+            const pct = Math.max((d.total / maxApiTotal) * 100, d.total > 0 ? 2 : 0);
             const isHighlight = pct > 50;
             return `
               <div>
@@ -320,8 +615,8 @@
                        style="width:${pct}%"></div>
                 </div>
                 <div class="flex gap-4 mt-1 text-xs text-slate-400">
-                  <span>输入 ${fmt(d.input)}</span>
-                  <span>输出 ${fmt(d.output)}</span>
+                  <span>${t('input')} ${fmt(d.input)}</span>
+                  <span>${t('output')} ${fmt(d.output)}</span>
                 </div>
               </div>
             `;
@@ -329,7 +624,6 @@
         </div>
       `;
 
-      // Date grid
       const sortedDates = Object.entries(byDate).sort((a, b) => a[0].localeCompare(b[0]));
       const maxDateTotal = Math.max(...sortedDates.map(d => d[1]));
       const peakDates = new Set(
@@ -340,7 +634,7 @@
         <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5">
           ${sortedDates.map(([date, total]) => {
             const isPeak = peakDates.has(date);
-            const label = date.slice(5); // MM-DD
+            const label = date.slice(5);
             return `
               <div class="rounded-lg p-3 text-center transition-colors ${isPeak
                 ? 'bg-indigo-50 ring-1 ring-indigo-200'
@@ -353,7 +647,6 @@
         </div>
       `;
 
-      // Model table
       const sortedModels = Object.entries(byModel).sort((a, b) => b[1].total - a[1].total);
       const totalModelTokens = sortedModels.reduce((s, [, v]) => s + v.total, 0);
 
@@ -361,9 +654,9 @@
         <table class="w-full text-sm">
           <thead>
             <tr class="border-b border-slate-100 bg-slate-50">
-              <th class="text-left px-5 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">模型</th>
-              <th class="text-right px-5 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">消耗 Tokens</th>
-              <th class="text-right px-5 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">占比</th>
+              <th class="text-left px-5 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide" data-i18n="modelCol">模型</th>
+              <th class="text-right px-5 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide" data-i18n="tokensCol">消耗 Tokens</th>
+              <th class="text-right px-5 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide" data-i18n="ratioCol">占比</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
@@ -381,6 +674,11 @@
         </table>
       `;
 
+      // Re-apply i18n to newly injected content
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        el.textContent = t(el.dataset.i18n);
+      });
+
       $('dashboard').classList.remove('hidden');
     }
 
@@ -393,7 +691,6 @@
       fileName = name;
       allRows  = rows;
 
-      // Detect date bounds from all rows
       const dates = rows.map(extractDate).filter(Boolean);
       const minDate = dates.length ? dates.reduce((a, b) => a < b ? a : b) : '';
       const maxDate = dates.length ? dates.reduce((a, b) => a > b ? a : b) : '';
@@ -415,12 +712,12 @@
       const data = analyzeData(allRows);
       renderDashboard(data);
 
-      // file info line
       const hasFilter = dateRange.start || dateRange.end;
-      const filterDesc = hasFilter
-        ? `，筛选：${dateRange.start || '*'} ~ ${dateRange.end || '*'}，命中 ${data.totalRecords} 条`
-        : `，共 ${allRows.length} 条记录`;
-      $('fileInfo').textContent = `已加载：${fileName}${filterDesc}`;
+      if (hasFilter) {
+        $('fileInfo').textContent = `${t('fileLoaded')}: ${fileName}, ${t('filterHit')} ${dateRange.start || '*'} ~ ${dateRange.end || '*'}, ${data.totalRecords} ${t('records')}`;
+      } else {
+        $('fileInfo').textContent = `${t('fileLoaded')}: ${fileName}, ${allRows.length} ${t('records')}`;
+      }
     }
 
     function showError(msg) {
@@ -443,13 +740,22 @@
       $('dateRangeStart').min   = minDate;
       $('dateRangeStart').max   = maxDate;
       $('dateRangeStart').value = minDate;
-
-      $('dateRangeEnd').min   = minDate;
-      $('dateRangeEnd').max   = maxDate;
-      $('dateRangeEnd').value = maxDate;
-
+      $('dateRangeEnd').min     = minDate;
+      $('dateRangeEnd').max     = maxDate;
+      $('dateRangeEnd').value   = maxDate;
       $('dateRangeSection').classList.remove('hidden');
     }
+
+    // ─── Theme / Lang Init ──────────────────────────────────
+    document.getElementById('themeWhite').addEventListener('click', () => setTheme('white'));
+    document.getElementById('themeBlack').addEventListener('click', () => setTheme('black'));
+    document.getElementById('themePink').addEventListener('click',  () => setTheme('pink'));
+    document.getElementById('langZH').addEventListener('click', () => setLang('zh'));
+    document.getElementById('langEN').addEventListener('click', () => setLang('en'));
+
+    // Script at bottom of body — DOM already ready here
+    setTheme('white');
+    setLang('zh');
 
     // ─── File Input ─────────────────────────────────────────
     $('fileInput').addEventListener('change', e => {
@@ -457,55 +763,36 @@
       if (!file) return;
       const reader = new FileReader();
       reader.onload = ev => loadData(parseCSV(ev.target.result), file.name);
-      reader.onerror = () => showError('文件读取失败，请检查文件是否可读');
+      reader.onerror = () => showError(t('readFailed'));
       reader.readAsText(file);
     });
 
     // ─── Drag & Drop ────────────────────────────────────────
     const dropZone = $('dropZone');
-
-    dropZone.addEventListener('dragover', e => {
-      e.preventDefault();
-      dropZone.classList.add('drag-over');
-    });
-
-    dropZone.addEventListener('dragleave', e => {
-      e.preventDefault();
-      dropZone.classList.remove('drag-over');
-    });
-
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); });
     dropZone.addEventListener('drop', e => {
       e.preventDefault();
       dropZone.classList.remove('drag-over');
       const file = e.dataTransfer.files[0];
-      if (!file || !file.name.endsWith('.csv')) {
-        showError('请拖拽 CSV 格式的文件');
-        return;
-      }
+      if (!file || !file.name.endsWith('.csv')) { showError(t('dragCsvOnly')); return; }
       const reader = new FileReader();
       reader.onload = ev => loadData(parseCSV(ev.target.result), file.name);
-      reader.onerror = () => showError('文件读取失败');
+      reader.onerror = () => showError(t('readFailedShort'));
       reader.readAsText(file);
     });
 
     // ─── Path Input ─────────────────────────────────────────
     $('loadPathBtn').addEventListener('click', async () => {
       const path = $('pathInput').value.trim();
-      if (!path) {
-        $('pathError').textContent = '请输入文件路径';
-        $('pathError').classList.remove('hidden');
-        return;
-      }
+      if (!path) { $('pathError').textContent = t('enterPath'); $('pathError').classList.remove('hidden'); return; }
       $('pathError').classList.add('hidden');
-
-      // Try using fetch (works if served from same origin or CORS enabled)
       try {
         const resp = await fetch(`file://${path}`);
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const text = await resp.text();
         loadData(parseCSV(text), path.split('/').pop());
       } catch {
-        // Fallback: try WebKitRequestFileSystem (Chrome-only, file protocol)
         if (window.showOpenFilePicker) {
           try {
             const [handle] = await window.showOpenFilePicker({
@@ -513,14 +800,13 @@
               excludeAcceptAllOption: false,
             });
             const file = await handle.getFile();
-            const text = await file.text();
-            loadData(parseCSV(text), file.name);
+            loadData(parseCSV(await file.text()), file.name);
           } catch {
-            $('pathError').textContent = '无法读取文件，请使用拖拽或点击选择方式加载';
+            $('pathError').textContent = t('cantReadFile');
             $('pathError').classList.remove('hidden');
           }
         } else {
-          $('pathError').textContent = '浏览器安全限制无法直接读取本地路径，请使用拖拽或点击选择方式加载';
+          $('pathError').textContent = t('pathBrowserLimit');
           $('pathError').classList.remove('hidden');
         }
       }
@@ -531,21 +817,16 @@
 
     // ─── Date Range ─────────────────────────────────────────
     $('applyRangeBtn').addEventListener('click', () => {
-      dateRange = {
-        start: $('dateRangeStart').value,
-        end:   $('dateRangeEnd').value,
-      };
+      dateRange = { start: $('dateRangeStart').value, end: $('dateRangeEnd').value };
       refreshDashboard();
     });
 
     $('clearRangeBtn').addEventListener('click', () => {
       if (allRows.length) {
         const dates = allRows.map(extractDate).filter(Boolean);
-        const minDate = dates.reduce((a, b) => a < b ? a : b);
-        const maxDate = dates.reduce((a, b) => a > b ? a : b);
-        dateRange = { start: minDate, end: maxDate };
-        $('dateRangeStart').value = minDate;
-        $('dateRangeEnd').value   = maxDate;
+        dateRange = { start: dates.reduce((a, b) => a < b ? a : b), end: dates.reduce((a, b) => a > b ? a : b) };
+        $('dateRangeStart').value = dateRange.start;
+        $('dateRangeEnd').value   = dateRange.end;
         refreshDashboard();
       }
     });
