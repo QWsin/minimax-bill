@@ -9,6 +9,7 @@
 ![stars](https://img.shields.io/github/stars/QWsin/minimax-bill?style=flat-square&color=6366f1)
 ![last-commit](https://img.shields.io/github/last-commit/QWsin/minimax-bill?style=flat-square&color=6366f1)
 ![version](https://img.shields.io/badge/version-1.0.0-6366f1?style=flat-square)
+[![pages](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-6366f1?style=flat-square)](https://QWsin.github.io/minimax-bill)
 
 </div>
 
@@ -27,7 +28,7 @@ _Zero dependencies · Three themes · Bilingual · Works offline_
 <div align="center">
   <img src="https://img.shields.io/badge/-HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5">
   <img src="https://img.shields.io/badge/-Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS">
-  <img src="https://img.shields.io/badge/-JavaScript-ES2022-yellow?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript">
+  <img src="https://img.shields.io/badge/JavaScript-ES2022-F7DF1E?style=for-the-badge&logo=javascript&logoColor=F7DF1E" alt="JavaScript">
 </div>
 
 ---
