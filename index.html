@@ -130,7 +130,7 @@
       </div>
 
       <!-- File Info -->
-      <div class="mb-6 px-1 flex items-center justify-between">
+      <div class="mb-6 px-1 flex items-center justify-between flex-wrap gap-3">
         <p id="fileInfo" class="text-xs text-slate-400"></p>
         <button id="resetBtn" class="text-xs text-slate-400 hover:text-indigo-500 transition-colors flex items-center gap-1">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,6 +139,29 @@
           </svg>
           重新选择文件
         </button>
+      </div>
+
+      <!-- Date Range Filter -->
+      <div id="dateRangeSection" class="hidden mb-6">
+        <div class="flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-5 py-3 shadow-sm">
+          <span class="text-xs text-slate-500 font-medium shrink-0">日期范围</span>
+          <input type="date" id="dateRangeStart"
+                 class="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-slate-50
+                        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+          <span class="text-xs text-slate-400">至</span>
+          <input type="date" id="dateRangeEnd"
+                 class="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-slate-50
+                        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+          <button id="applyRangeBtn"
+                  class="ml-auto px-4 py-1.5 bg-slate-900 text-white text-xs font-medium rounded-lg
+                         hover:bg-slate-800 active:bg-slate-950 transition-colors">
+            应用
+          </button>
+          <button id="clearRangeBtn"
+                  class="px-3 py-1.5 text-xs text-slate-400 hover:text-indigo-500 transition-colors">
+            重置
+          </button>
+        </div>
       </div>
 
       <!-- API 消耗 -->
@@ -171,7 +194,9 @@
 
   <script>
     // ─── State ───────────────────────────────────────────────
-    let currentData = null;
+    let allRows     = [];      // raw CSV rows, unfiltered
+    let dateRange   = { start: '', end: '' };  // selected filter range
+    let fileName    = '';
 
     // ─── Helpers ─────────────────────────────────────────────
     const $ = id => document.getElementById(id);
@@ -180,6 +205,11 @@
     function safeInt(v) {
       const n = parseInt(v, 10);
       return isNaN(n) ? 0 : n;
+    }
+
+    function extractDate(row) {
+      const time = row['消费时间'] || row['时间'] || '';
+      return time.match(/^([\d-]+)/)?.[1] || null;
     }
 
     // ─── CSV Parser ───────────────────────────────────────────
@@ -198,7 +228,17 @@
     }
 
     // ─── Analysis ────────────────────────────────────────────
-    function analyzeData(rows) {
+    function analyzeData(rawRows, range = dateRange) {
+      // Filter by date range
+      const rows = rawRows.filter(row => {
+        if (!range.start && !range.end) return true;
+        const d = extractDate(row);
+        if (!d) return true;
+        if (range.start && d < range.start) return false;
+        if (range.end   && d > range.end)   return false;
+        return true;
+      });
+
       const byApi   = {};
       const byModel = {};
       const byDate  = {};
@@ -210,9 +250,7 @@
         const total  = safeInt(row['总消费数']   || row['总消费']);
         const api    = row['消费接口']  || row['接口名称']  || 'unknown';
         const model  = row['消费模型']  || row['模型']      || 'unknown';
-        const time   = row['消费时间']  || row['时间']      || '';
-
-        const date = time.match(/^([\d-]+)/)?.[1] || 'unknown';
+        const date   = extractDate(row) || 'unknown';
 
         byApi[api]   = byApi[api]   || { input: 0, output: 0, total: 0 };
         byApi[api].input  += input;
@@ -347,23 +385,42 @@
     }
 
     // ─── Load / Process ─────────────────────────────────────
-    function loadData(rows, fileName) {
+    function loadData(rows, name) {
       $('loadingState').classList.remove('hidden');
       $('errorState').classList.add('hidden');
       $('dashboard').classList.add('hidden');
 
-      // Small delay for UX
+      fileName = name;
+      allRows  = rows;
+
+      // Detect date bounds from all rows
+      const dates = rows.map(extractDate).filter(Boolean);
+      const minDate = dates.length ? dates.reduce((a, b) => a < b ? a : b) : '';
+      const maxDate = dates.length ? dates.reduce((a, b) => a > b ? a : b) : '';
+
       setTimeout(() => {
         try {
-          currentData = analyzeData(rows);
-          renderDashboard(currentData);
-          $('fileInfo').textContent = `已加载：${fileName}，共 ${rows.length} 条记录`;
+          dateRange = { start: minDate, end: maxDate };
+          renderDateRangePickers(minDate, maxDate);
+          refreshDashboard();
           $('loadingState').classList.add('hidden');
         } catch (err) {
           $('loadingState').classList.add('hidden');
           showError(err.message);
         }
       }, 300);
+    }
+
+    function refreshDashboard() {
+      const data = analyzeData(allRows);
+      renderDashboard(data);
+
+      // file info line
+      const hasFilter = dateRange.start || dateRange.end;
+      const filterDesc = hasFilter
+        ? `，筛选：${dateRange.start || '*'} ~ ${dateRange.end || '*'}，命中 ${data.totalRecords} 条`
+        : `，共 ${allRows.length} 条记录`;
+      $('fileInfo').textContent = `已加载：${fileName}${filterDesc}`;
     }
 
     function showError(msg) {
@@ -377,7 +434,21 @@
       $('loadingState').classList.add('hidden');
       $('fileInput').value = '';
       $('pathInput').value = '';
-      currentData = null;
+      allRows   = [];
+      fileName  = '';
+      dateRange = { start: '', end: '' };
+    }
+
+    function renderDateRangePickers(minDate, maxDate) {
+      $('dateRangeStart').min   = minDate;
+      $('dateRangeStart').max   = maxDate;
+      $('dateRangeStart').value = minDate;
+
+      $('dateRangeEnd').min   = minDate;
+      $('dateRangeEnd').max   = maxDate;
+      $('dateRangeEnd').value = maxDate;
+
+      $('dateRangeSection').classList.remove('hidden');
     }
 
     // ─── File Input ─────────────────────────────────────────
@@ -457,6 +528,27 @@
 
     // ─── Reset ─────────────────────────────────────────────
     $('resetBtn').addEventListener('click', reset);
+
+    // ─── Date Range ─────────────────────────────────────────
+    $('applyRangeBtn').addEventListener('click', () => {
+      dateRange = {
+        start: $('dateRangeStart').value,
+        end:   $('dateRangeEnd').value,
+      };
+      refreshDashboard();
+    });
+
+    $('clearRangeBtn').addEventListener('click', () => {
+      if (allRows.length) {
+        const dates = allRows.map(extractDate).filter(Boolean);
+        const minDate = dates.reduce((a, b) => a < b ? a : b);
+        const maxDate = dates.reduce((a, b) => a > b ? a : b);
+        dateRange = { start: minDate, end: maxDate };
+        $('dateRangeStart').value = minDate;
+        $('dateRangeEnd').value   = maxDate;
+        refreshDashboard();
+      }
+    });
 
   </script>
 </body>
